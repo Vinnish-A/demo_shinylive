@@ -1,0 +1,55 @@
+"0","
+
+  
+library(shiny)
+library(ggplot2)
+
+# Define UI for application that draws a histogram
+ui <- fluidPage(# Application title
+  titlePanel(""Old Faithful Geyser Data""),
+  
+  # Sidebar with a slider input for number of bins
+  sidebarLayout(sidebarPanel(
+    sliderInput(
+      ""Sepal.Length"",
+      ""Sepal.Length"",
+      min = iris$Sepal.Length |> range() |> round() |> _[1],
+      max = iris$Sepal.Length |> range() |> round() |> _[2],
+      value = iris$Sepal.Length[1]
+    )
+  ), # Show a plot of the generated distribution
+  mainPanel(plotOutput(""distPlot""))))
+
+# Define server logic required to draw a histogram
+server <- function(input, output) {
+  output$text <- renderPlot({
+    # generate bins based on input$bins from ui.R
+    library(glmnet)
+    
+    data = iris[iris$Species != 'virginica', ]
+    data$Species = ifelse(data$Species == 'setosa', 0, 1)
+    X = data[, 1:4] |> as.matrix()
+    Y = data[, 5] |> as.matrix()
+    
+    model = glmnet(
+      x = X,
+      y = Y,
+      alpha = 1,
+      lambda = 0.001,
+      family = binomial()
+    )
+    coef(model)
+    
+    newX = X[100, ]
+    names(newX) = NULL
+    
+    res = predict(model, newX, type = 'response')[, 1]
+    ifelse(res >= 0.5, 1, 0)
+  })
+}
+
+# Run the application
+shinyApp(ui = ui, server = server)"
+"2","'""shinylive-r""' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+"
